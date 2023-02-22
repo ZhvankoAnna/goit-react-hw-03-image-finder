@@ -77,7 +77,6 @@ export class App extends Component {
 
   render() {
     const {
-      // search,
       images,
       page,
       status,
@@ -98,7 +97,7 @@ export class App extends Component {
         {status === 'pending' && <Spinner />}
         {status === 'rejected' && this.notifyError(error)}
         {total === 0 && this.notifyError('Cannot find images')}
-        {status === 'resolved' && (
+        {(status === 'resolved' || images.length > 0) && (
           <ImageGallery images={images} showModal={this.showModal} />
         )}
         {Boolean(images?.length) && total >= page * 12 && (
