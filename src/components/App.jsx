@@ -1,11 +1,11 @@
 import { Component } from 'react';
 import { searchImg } from 'services/getFetch';
 import Searchbar from './Searchbar/Searchbar';
+import Spinner from 'shared/components/Loader/Loader';
 import ImageGallery from './ImageGallery/ImageGallery';
-import Button from './Button/Button';
+import Button from '../shared/components/Button/Button';
 import { ToastContainer, toast } from 'react-toastify';
-import { InfinitySpin } from 'react-loader-spinner';
-import Modal from './Modal/Modal';
+import Modal from '../shared/components/Modal/Modal';
 import css from './app.module.css';
 
 export class App extends Component {
@@ -14,7 +14,7 @@ export class App extends Component {
     images: [],
     page: 1,
     total: null,
-    isLoading: false,
+    status: 'idle',
     error: null,
     showModal: false,
     imageProps: {},
@@ -23,6 +23,7 @@ export class App extends Component {
   componentDidUpdate(_, prevState) {
     const { search, page } = this.state;
     if (prevState.search !== search || prevState.page !== page) {
+      this.setState({ status: 'pending' });
       this.getFetch();
     }
   }
@@ -37,18 +38,17 @@ export class App extends Component {
   async getFetch() {
     try {
       const { search, page } = this.state;
-      this.setState({ isLoading: true });
-      console.log('page', page);
       const { data } = await searchImg(search, page);
-      console.log('data', data);
       this.setState(({ images }) => ({
         images: [...images, ...data.hits],
         total: data.total,
+        status: 'resolved',
       }));
     } catch ({ error }) {
-      this.setState({ error: error.data.message || 'Cannot fetch images.' });
-    } finally {
-      this.setState({ isLoading: false });
+      this.setState({
+        error: error.data.message || 'Cannot fetch images.',
+        status: 'rejected',
+      });
     }
   }
 
@@ -61,7 +61,7 @@ export class App extends Component {
   };
 
   showModal = ({ largeImageURL, tags }) => {
-    console.log(largeImageURL, tags)
+    console.log(largeImageURL, tags);
     this.setState({
       showModal: true,
       imageProps: {
@@ -76,19 +76,32 @@ export class App extends Component {
   };
 
   render() {
-    const { search, images, isLoading, error, total, showModal, imageProps } = this.state;
+    const {
+      // search,
+      images,
+      page,
+      status,
+      error,
+      total,
+      showModal,
+      imageProps,
+    } = this.state;
 
     return (
       <div className={css.app}>
-        {showModal && <Modal onClose={this.closeModal}>
-          <img src={imageProps.largeImageURL} alt={imageProps.tags} />
-        </Modal>}
+        {showModal && (
+          <Modal onClose={this.closeModal}>
+            <img src={imageProps.largeImageURL} alt={imageProps.tags} />
+          </Modal>
+        )}
         <Searchbar onSubmit={this.getFormData} />
-        {isLoading && <InfinitySpin width="200" color="#3f51b5" />}
-        {error && this.notifyError(error)}
+        {status === 'pending' && <Spinner />}
+        {status === 'rejected' && this.notifyError(error)}
         {total === 0 && this.notifyError('Cannot find images')}
-        {search && <ImageGallery images={images} showModal={this.showModal} />}
-        {Boolean(images?.length) && (
+        {status === 'resolved' && (
+          <ImageGallery images={images} showModal={this.showModal} />
+        )}
+        {Boolean(images?.length) && total >= page * 12 && (
           <Button onClick={this.handleLoadMoreClick} />
         )}
         <ToastContainer autoClose={2500} />

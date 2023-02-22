@@ -1,9 +1,14 @@
 import PropTypes from 'prop-types';
 import css from './image-gallery-item.module.css';
 
-const ImageGalleryItem = ({ smallImageURL, tags, largeImageURL, showModal }) => {
+const ImageGalleryItem = ({
+  smallImageURL,
+  tags,
+  largeImageURL,
+  showModal,
+}) => {
   return (
-    <li className={css.item} onClick={()=>showModal({largeImageURL, tags})}>
+    <li className={css.item} onClick={() => showModal({ largeImageURL, tags })}>
       <img className={css.image} src={smallImageURL} alt={tags} />
     </li>
   );
