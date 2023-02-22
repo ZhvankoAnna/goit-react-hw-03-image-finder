@@ -2,6 +2,7 @@ import { Component } from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { BsSearch } from 'react-icons/bs';
 import css from './searchbar.module.css';
 
 class Searchbar extends Component {
@@ -33,7 +34,7 @@ class Searchbar extends Component {
       <header className={css.searchbar}>
         <form className={css.form} onSubmit={this.handleFormSubmit}>
           <button type="submit" className={css.button}>
-            <span className={css.label}>Search</span>
+            <BsSearch className={css.icon} />
           </button>
 
           <input
