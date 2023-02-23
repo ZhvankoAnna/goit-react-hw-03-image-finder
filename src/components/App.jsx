@@ -61,7 +61,6 @@ export class App extends Component {
   };
 
   showModal = ({ largeImageURL, tags }) => {
-    console.log(largeImageURL, tags);
     this.setState({
       showModal: true,
       imageProps: {
